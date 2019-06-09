@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+</head>
+<body>
+<div id="bookmark"></div>
+
+
+<div id="users">
+  <table  border=1 style="border:2px solid red;">
+    <thead>
+        <th>username</th>
+        <th>email</th>
+    </thead>
+    <tbody id="user-list">
+      
+    </tbody>
+    
+  </table>
+</div>
+
+<br>
+<br>
+
+<div id="blogs">
+
+  <table border="1">
+    <thead>
+      <th>Name</th>
+      <th>Tagline</th>
+    </thead>
+    <tbody id="blog-tbody">
+      
+
+     
+    </tbody>
+    
+  </table>
+<br>
+</div>
+<div class="blog">
+  
+</div>
+
+<div>
+  <form method="post" action="http://localhost:8000/api/user/create" id="form">
+    <input type="text" name="username">
+    <input type="text" name="email">
+    
+    <input type="submit" name="">
+  </form>
+</div>
+<a href="http://localhost:8000/api/bookmark/blog/3" class="btn-bookmark">Bookmark</a>
+<script
+  src="https://code.jquery.com/jquery-3.4.1.min.js"
+  integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
+  crossorigin="anonymous"></script>
+<script type="text/javascript">
+  $(document).ready(function(){
+    $.ajax({
+      url:"http://localhost:8000/api/list/blog",
+      method:"get",
+      success:function(data){
+        
+        // for(let key in data){
+        //   console.log(data[key])
+        //   console.log(data[key].name)
+        //   console.log(data[key].tagline)
+          tbody = $('#blog-tbody');
+          for(var i = 0 ; i < data.length ; i++){
+          // html = '<tr><td>'+data[i].name+'</td></tr><tr><td>'+data[i].tagline+'</td></tr>';
+          tr = `<tr><td>${data[i].name}</td><td>${data[i].tagline}</td></tr>`
+          tbody.append(tr);
+        }
+          // $("#users").html("<tr>");
+        }
+
+      
+    })
+
+  })
+</script>
+
+
+  <script type="text/javascript">
+  	$('.btn-bookmark').click(function(e){
+  		e.preventDefault();
+  		$.ajax({
+  			url:$(this).attr('href'),
+  			method:'get',
+  			success:function(data){
+  				$('#bookmark').text(data.bookmarked)
+
+  			}
+  		});
+  	});
+  </script>
+  <script type="text/javascript">
+    $(document).ready(function(){
+      $.ajax({
+        url:'http://localhost:8000/api/user/list',
+        method:'get',
+        success:function(data){
+          console.log(data);
+          for(var i=0; i<data.length; i++){
+            console.log(data[i].email)
+            users =`<tr><td>${data[i].username}</td><td>${data[i].email}</td></tr>`
+            $('#user-list').append(users);
+          }
+
+        }
+      });
+    });
+  </script>
+
+  <script type="text/javascript">
+    $('#form').submit(function(e){
+      e.preventDefault();
+      $.ajax({
+        url:$(this).attr('action'),
+        method:'post',
+        data:$(this).serialize(),
+        success:function(data){
+          // window.href.location = ''
+          console.log(data);
+        }
+      });
+    });
+  </script>
+</body>
+</html>
