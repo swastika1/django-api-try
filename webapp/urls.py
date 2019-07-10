@@ -2,8 +2,14 @@ from django.contrib import admin
 from django.conf.urls import url, include
 from .views import *
 
+app_name='webapp'
+
 urlpatterns = [
-    url(r'^user/list', UserList.as_view(), name='userlist'),
+
+	
+	url(r'^$', Home.as_view(), name='home'),
+
+    url(r'^user/list$', UserList.as_view(), name='userlist'),
     url(r'^user/create', UserCreateAPIView.as_view(), name='usercreate'),
     url(r'^user/update/(?P<pk>\d+)/$',
         UserUpdateAPIView.as_view(), name='userupdate'),
@@ -33,5 +39,10 @@ urlpatterns = [
     url(r'^bookmark/blog/(?P<blog_id>\d+)/$', BookMarkView.as_view(), name='bookmark'),  
 
 
-    url(r'^bookmark-template', BookmarkTemplateView.as_view(), name='asdf')
+    url(r'^bookmark-template', BookmarkTemplateView.as_view(), name='bookmark_template'),
+    url(r'^logout/', Logout.as_view(), name='logout'),
+
+    url(r'^usertype/chart/$', UserTypeChart.as_view(), name='usertype'),
+
+    url(r'^group/chart/$', GroupChart.as_view(), name='groupchart'),
 ]

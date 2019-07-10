@@ -44,14 +44,42 @@
 </div>
 
 <div>
-  <form method="post" action="http://localhost:8000/api/user/create" id="form">
-    <input type="text" name="username">
+<!--   <form method="post" action="http://localhost:8000/api/user/create" id="form">
+    <input type="text" name="username" placeholder="">
     <input type="text" name="email">
     
     <input type="submit" name="">
-  </form>
+  </form> -->
 </div>
+<br>
+<div>
+  <form method = "post" action="http://localhost:8000/api/create/blog" id ="form2">
+    <input type="text" name="name" placeholder="blogname">
+    <input type="text" name="tagline" placeholder="tagline">
+    <input type="submit" name="">
+    
+  </form>
+
+</div>
+<div>
+  <form method="post" action="http://localhost:8000/api/user/login-key/" id="login">
+    <input type="text" name="username" placeholder="username">
+    <input type="text" name="password" placeholder="password">
+
+
+    <input type="submit" name="">
+    
+  </form>
+  
+</div>
+<div >
+  <a href="http://localhost:8000/api/logout" id="logout">Logout</a>
+</div>
+
+
+
 <a href="http://localhost:8000/api/bookmark/blog/3" class="btn-bookmark">Bookmark</a>
+
 <script
   src="https://code.jquery.com/jquery-3.4.1.min.js"
   integrity="sha256-CSXorXvZcTkaix6Yvo6HppcZGetbYMGWSFlBw8HfCJo="
@@ -128,5 +156,57 @@
       });
     });
   </script>
+
+
+  <script type="text/javascript">
+    $('#form2').submit(function(e){
+      e.preventDefault();
+      $.ajax({
+        url: $(this).attr('action'),
+        method:'post',
+        headers: { 'Authorization': 'Token ' + localStorage.getItem('token') },
+        data:$(this).serialize(),
+        success:function(data){
+          console.log(data);
+
+
+        }
+      });
+    });
+  </script>
+
+  <script type="text/javascript">
+    $('#login').submit(function(e){
+      e.preventDefault();
+
+        $.ajax({
+          url: $(this).attr('action'),
+          method: 'post',
+          data:$(this).serialize(),
+          success:function(data){
+            localStorage.setItem('token', data.token)
+            
+          }
+        })
+
+    });
+  </script>
+
+  <script type="text/javascript">
+    $('#logout').click(function(e){
+      e.preventDefault();
+      $.ajax({
+        url:$(this).attr('action'),
+        method:'get',
+        success:function(data){
+          localStorage.clear()
+
+        }
+      });
+    });
+  </script>
+
+
+
 </body>
 </html>

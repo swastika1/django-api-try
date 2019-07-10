@@ -1,7 +1,10 @@
+import requests
+import json
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import status
+from django.views.generic import View
 # from rest_framework.decorators import APIView
 from rest_framework.response import Response
 from .models import *
@@ -17,6 +20,12 @@ from rest_framework import permissions, exceptions
 from rest_framework import pagination
 from django.utils.crypto import get_random_string
 from django.views.generic import TemplateView
+from django.shortcuts import render
+from django.db.models import Count
+
+
+
+
 # Create your views here.
 class ExamplePagination(pagination.PageNumberPagination):
     page_size = 2
@@ -38,7 +47,6 @@ class UserPermission(permissions.BasePermission):
         _permissions = [group.name for group in request.user.groups.all() ]
 
         if 'special' in _permissions and 'normal' in _permissions:
-            print('asdfasdfa')
             return 'ok'
         raise exceptions.PermissionDenied()
         # if not (request.user.groups.first().name =="special" ):
@@ -120,7 +128,7 @@ class NationalityListAPIView(ListAPIView):
 
 class EmployeeTokenMatchAPIView(APIView):
     serializer_class = EmployeeTokenMatchSerializer
-    # permission_classes = [AllowAny]
+    permission_classes = [AllowAny]
 
     def post(self, request, *args, **kwargs):
         # return HttpResponse('a')
@@ -298,12 +306,84 @@ class BookmarkTemplateView(TemplateView):
         
 
 
+class Logout(APIView):
+    permission_classes=[AllowAny]
+    def get(self, request, format=None):
+        request.user.auth_token.delete()
+        print("abcdef................")
+        return Response(status=status.HTTP_200_OK)
 
 
+class Home(TemplateView):
+    template_name='bookmark/home.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        bookmarked = Bookmark.objects.filter(is_bookmarked=True)
+        notbookmarked = Bookmark.objects.filter(is_bookmarked=False)
+        context['data'] = [bookmarked.count(),notbookmarked.count()]
+        print(context['data'],11111111111)
+        return context
+    # def get(self, request):
+    #     ip_address = request.META.get('HTTP_X_FORWARDED_FOR', '')
+    #     response = requests.get('http://api.ipstack.com/103.10.28.220?access_key=91e58c2a157d77fa641e43123ff5c0e8' )
+    #     geodata = response.json()
+    #     # print(geodata,1111111)
+    #     return render(request, 'bookmark/home.html', {
+    #         'ip': geodata['ip'],
+    #         'country': geodata['country_name'],
+    #         'latitude': geodata['latitude'],
+    #         'longitude': geodata['longitude'],
+    #         'api_key': '91e58c2a157d77fa641e43123ff5c0e8'
+    #     })
 
-
-
-
-
+class UserTypeChart(APIView):
+    permission_classes=[AllowAny]
+    def get(self, request, *args, **kwargs):
+       
+        backgroundColor = ['rgba(255, 99, 132, 0.2)','rgba(54, 162, 235, 0.2)']
+        bookmarked = Bookmark.objects.filter(is_bookmarked=True)
+        notbookmarked = Bookmark.objects.filter(is_bookmarked=False)
+        data = [bookmarked.count(),notbookmarked.count()]
+        label = ['bookmarked','notbookmarked']
+        # data.append({
+        #     'label': 'bookmarked', 'value': bookmarked.count(),
+        #     'color': "#009efb", 'highlight': "#009e4e",
+        # })
+        # data.append({
+        #     'label': 'notbookmarked', 'value': notbookmarked.count(),
+        #     'color': "#009efb", 'highlight': "#009e4e",
+        # })
+        toRet = {'data':data,'color':backgroundColor, 'label':label}
+        return HttpResponse(json.dumps(toRet), content_type='application/json')
     
+
+
+class GroupChart(APIView):
+    permission_classes=[AllowAny]
+    def get(self, request, *args, **kwargs):
+        backgroundColor = ['rgba(255, 99, 132, 0.2)','rgba(54, 162, 235, 0.2)','rgba(153, 102, 255, 1)','rgba(255, 159, 64, 1)']
+        users = User.objects.values('groups__name').annotate(employee_count=Count('groups__name'))
+        data = []
+        label = []
+        for user in users:
+            data.append(user.get('employee_count'))
+            label.append(user.get('groups__name'))
+
+        toRet={'data':data, 'label':label, 'color':backgroundColor}
+        return JsonResponse(toRet)
+        # print(employee,11111);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
